@@ -13,10 +13,10 @@
 //	topLeft, topMid, topRight, midLeft, midMid (centre), midRight, botLeft, botMid, botRight
 //	tl, tm, tr, ml, mm, mr, bl, bm, br
 //
-//  tl--tm--tr
-//	|		|
+//  	tl--tm--tr
+//	|	|
 //	ml--mm--mr
-//	|		|
+//	|	|
 //	bl--bm--br
 //
 // degToRotate is a number, the degrees to rotate can be 0 to 360 to rotate clockwise and -0 to -360 to rotate counterclockwise
