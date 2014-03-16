@@ -1,0 +1,307 @@
+// Helper function to rotate a graphic token around any one of nine pivot points
+//
+// copyright pug games 2014
+// please feel free to use this function, change it, add to it in any way you feel
+// functions created by Roll20 user Konrad J.
+//
+//	to use these helper functions in your own script you need all three, trueRotation, getPoints, and processRotation.
+//	the only function you need to call in your own script is processRotation.  You need to pass it
+//	pivotPoint, degToRotate, and the id of a graphic token you want to rotate
+//	processRotation returns true if it could find the token and false if it could not
+//
+//	pivotPoint is a string, one of nine points on a token
+//	topLeft, topMid, topRight, midLeft, midMid (centre), midRight, botLeft, botMid, botRight
+//	tl, tm, tr, ml, mm, mr, bl, bm, br
+//
+//  tl--tm--tr
+//	|		|
+//	ml--mm--mr
+//	|		|
+//	bl--bm--br
+//
+// degToRotate is a number, the degrees to rotate can be 0 to 360 to rotate clockwise and -0 to -360 to rotate counterclockwise
+//
+
+function trueRotation(rotation) {
+// fixes Roll20 rotation property so rotation can only be between 0 and 360 deg
+  if (rotation < 0){
+      rotation=360-Math.abs(rotation%360);
+  }
+  rotation=Math.abs(rotation%360);
+  return rotation;
+}
+
+function getPoints(width, height, rot, midX, midY) {
+var points = {
+		topLeft : {
+			x : 0,
+			y : 0
+		},
+		topMid : {
+			x : 0,
+			y : 0
+		},
+		topRight : {
+			x : 0,
+			y : 0
+		},
+		midLeft : {
+			x : 0,
+			y : 0
+		},
+		midMid : {
+			x : 0,
+			y : 0
+		},
+		midRight : {
+			x : 0,
+			y : 0
+		},
+		botLeft : {
+			x : 0,
+			y : 0
+		},
+		botMid : {
+			x : 0,
+			y : 0
+		},
+		botRight : {
+			x : 0,
+			y : 0
+		}
+};
+	var hw = 0;
+	var hh = 0;
+	var cos = 0;
+	var sin = 0;
+	var x = 0;
+	var y = 0;
+		
+		// Top Left
+		hw = -width / 2;
+		hh = -height / 2;
+		cos = Math.cos(rot * (Math.PI / 180));
+		sin = Math.sin(rot * (Math.PI / 180));
+		x = hw * cos - hh * sin;
+		y = hw * sin + hh * cos;
+		points.topLeft.x = midX + x;
+		points.topLeft.y = midY + y;
+
+		// Top Mid
+		hw = 0;
+		hh = -height / 2;
+		cos = Math.cos(rot * (Math.PI / 180));
+		sin = Math.sin(rot * (Math.PI / 180));
+		x = hw * cos - hh * sin;
+		y = hw * sin + hh * cos;
+		points.topMid.x = midX + x;
+		points.topMid.y = midY + y;
+		
+		// Top Right
+		hw = width / 2;
+		hh = -height / 2;
+		cos = Math.cos(rot * (Math.PI / 180));
+		sin = Math.sin(rot * (Math.PI / 180));
+		x = hw * cos - hh * sin;
+		y = hw * sin + hh * cos;
+		points.topRight.x = midX + x;
+		points.topRight.y = midY + y;
+
+		// Mid Left
+		hw = -width / 2;
+		hh = 0;
+		cos = Math.cos(rot * (Math.PI / 180));
+		sin = Math.sin(rot * (Math.PI / 180));
+		x = hw * cos - hh * sin;
+		y = hw * sin + hh * cos;
+		points.midLeft.x = midX + x;
+		points.midLeft.y = midY + y;
+
+		// Mid Mid (Centre, we already have this)
+		hw = 0;
+		hh = 0;
+		cos = Math.cos(rot * (Math.PI / 180));
+		sin = Math.sin(rot * (Math.PI / 180));
+		x = hw * cos - hh * sin;
+		y = hw * sin + hh * cos;
+		points.midMid.x = midX + x;
+		points.midMid.y = midY + y;
+		
+		// Mid Right
+		hw = width / 2;
+		hh = 0;
+		cos = Math.cos(rot * (Math.PI / 180));
+		sin = Math.sin(rot * (Math.PI / 180));
+		x = hw * cos - hh * sin;
+		y = hw * sin + hh * cos;
+		points.midRight.x = midX + x;
+		points.midRight.y = midY + y;
+		
+		// Bottom Left
+		hw = -width / 2;
+		hh = height / 2;
+		cos = Math.cos(rot * (Math.PI / 180));
+		sin = Math.sin(rot * (Math.PI / 180));
+		x = hw * cos - hh * sin;
+		y = hw * sin + hh * cos;
+		points.botLeft.x = midX + x;
+		points.botLeft.y = midY + y;
+
+		// Bottom Mid
+		hw = 0;
+		hh = height / 2;
+		cos = Math.cos(rot * (Math.PI / 180));
+		sin = Math.sin(rot * (Math.PI / 180));
+		x = hw * cos - hh * sin;
+		y = hw * sin + hh * cos;
+		points.botMid.x = midX + x;
+		points.botMid.y = midY + y;
+		
+		// Bottom Right
+		hw = width / 2;
+		hh = height / 2;
+		cos = Math.cos(rot * (Math.PI / 180));
+		sin = Math.sin(rot * (Math.PI / 180));
+		x = hw * cos - hh * sin;
+		y = hw * sin + hh * cos;
+		points.botRight.x = midX + x;
+		points.botRight.y = midY + y;
+
+		return points;
+}
+
+function processRotation(pivotPoint, degToRotate, tokenID) {
+    var currentXY = {
+		topLeft : {
+			x : 0,
+			y : 0
+		},
+		topMid : {
+			x : 0,
+			y : 0
+		},
+		topRight : {
+			x : 0,
+			y : 0
+		},
+		midLeft : {
+			x : 0,
+			y : 0
+		},
+		midMid : {
+			x : 0,
+			y : 0
+		},
+		midRight : {
+			x : 0,
+			y : 0
+		},
+		botLeft : {
+			x : 0,
+			y : 0
+		},
+		botMid : {
+			x : 0,
+			y : 0
+		},
+		botRight : {
+			x : 0,
+			y : 0
+		}
+	};
+    var rotatedXY = {
+		topLeft : {
+			x : 0,
+			y : 0
+		},
+		topMid : {
+			x : 0,
+			y : 0
+		},
+		topRight : {
+			x : 0,
+			y : 0
+		},
+		midLeft : {
+			x : 0,
+			y : 0
+		},
+		midMid : {
+			x : 0,
+			y : 0
+		},
+		midRight : {
+			x : 0,
+			y : 0
+		},
+		botLeft : {
+			x : 0,
+			y : 0
+		},
+		botMid : {
+			x : 0,
+			y : 0
+		},
+		botRight : {
+			x : 0,
+			y : 0
+		}
+	};
+
+	var token = getObj('graphic', tokenID);
+	if (token != undefined) {
+		var width = token.get("width");
+		var height = token.get("height");
+		var left = token.get("left");
+		var top = token.get("top");
+		var rot = trueRotation(token.get("rotation"));
+		var rotation = rot + Number(degToRotate);
+	
+		currentXY = getPoints(width, height, rot, left, top);
+		rotatedXY = getPoints(width, height, rotation, left, top);
+		token.set("rotation",rotation);
+		switch(pivotPoint) {
+			case "tl":
+				token.set("left", currentXY.midMid.x + (currentXY.topLeft.x-rotatedXY.topLeft.x));
+				token.set("top", currentXY.midMid.y + (currentXY.topLeft.y-rotatedXY.topLeft.y));
+				break;
+			case "tm":
+				token.set("left", currentXY.midMid.x + (currentXY.topMid.x-rotatedXY.topMid.x));
+				token.set("top", currentXY.midMid.y + (currentXY.topMid.y-rotatedXY.topMid.y));
+				break;
+			case "tr":
+				token.set("left", currentXY.midMid.x + (currentXY.topRight.x-rotatedXY.topRight.x));
+				token.set("top", currentXY.midMid.y + (currentXY.topRight.y-rotatedXY.topRight.y));
+				break;
+			case "ml":
+				token.set("left", currentXY.midMid.x + (currentXY.midLeft.x-rotatedXY.midLeft.x));
+				token.set("top", currentXY.midMid.y + (currentXY.midLeft.y-rotatedXY.midLeft.y));
+				break;
+			case "mm":
+				token.set("left", currentXY.midMid.x + (currentXY.midMid.x-rotatedXY.midMid.x));
+				token.set("top", currentXY.midMid.y + (currentXY.midMid.y-rotatedXY.midMid.y));
+				break;
+			case "mr":
+				token.set("left", currentXY.midMid.x + (currentXY.midRight.x-rotatedXY.midRight.x));
+				token.set("top", currentXY.midMid.y + (currentXY.midRight.y-rotatedXY.midRight.y));
+				break;
+			case "bl":
+				token.set("left", currentXY.midMid.x + (currentXY.botLeft.x-rotatedXY.botLeft.x));
+				token.set("top", currentXY.midMid.y + (currentXY.botLeft.y-rotatedXY.botLeft.y));
+				break;
+			case "bm":
+				token.set("left", currentXY.midMid.x + (currentXY.botMid.x-rotatedXY.botMid.x));
+				token.set("top", currentXY.midMid.y + (currentXY.botMid.y-rotatedXY.botMid.y));
+				break;
+			case "br":
+				token.set("left", currentXY.midMid.x + (currentXY.botRight.x-rotatedXY.botRight.x));
+				token.set("top", currentXY.midMid.y + (currentXY.botRight.y-rotatedXY.botRight.y));
+				break;
+		}
+		return true;
+	}
+	else {
+        sendChat("error", "Token ID not found")
+		return false;
+	}
+}
